@@ -16,9 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
     ).value;
     const category = document.querySelector("select").value;
     const subcategory = document.querySelectorAll("select")[1].value;
-    const discount = document.querySelector(
-      'input[type="number"][min="0"][max="100"]'
-    ).value;
+    const discount =
+      document.querySelector('input[type="number"][min="0"][max="100"]')
+        .value || 0; // Default to 0 if empty
     const imageFile = document.querySelector('input[type="file"]').files[0];
     const bestSeller = document.querySelector(
       'input[name="best_seller"]:checked'
@@ -35,37 +35,37 @@ document.addEventListener("DOMContentLoaded", function () {
       !category ||
       !subcategory ||
       !bestSeller ||
-      !stockAvailable
+      !stockAvailable ||
+      !imageFile // Ensure an image is uploaded
     ) {
-      alert("Please fill out all required fields.");
+      alert("Please fill out all required fields and upload an image.");
       return;
     }
 
     // Create a new row in the table
     const newRow = document.createElement("tr");
 
-    // script.js
-
-    // Inside the form submission event listener
+    // Add cells to the row
     newRow.innerHTML = `
-  <td>${itemName}</td>
-  <td>${description}</td>
-  <td>${price}</td>
-  <td>${category}</td>
-  <td>${subcategory}</td>
-  <td>${discount}%</td>
-  <td><img src="${URL.createObjectURL(
-    imageFile
-  )}" alt="${itemName}" width="50"></td>
-  <td>${bestSeller}</td>
-  <td>${stockAvailable}</td>
-  <td>
-    <div class="action-buttons">
-      <button class="edit-btn">Edit</button>
-      <button class="delete-btn">Delete</button>
-    </div>
-  </td>
-`;
+      <td>${itemName}</td>
+      <td>${description}</td>
+      <td>${price}</td>
+      <td>${category}</td>
+      <td>${subcategory}</td>
+      <td>${discount}%</td>
+      <td><img src="${URL.createObjectURL(
+        imageFile
+      )}" alt="${itemName}" width="50"></td>
+      <td>${bestSeller}</td>
+      <td>${stockAvailable}</td>
+      <td>
+        <div class="action-buttons">
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
+        </div>
+      </td>
+    `;
+
     // Append the new row to the table
     tableBody.appendChild(newRow);
 
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteButton = newRow.querySelector(".delete-btn");
 
     editButton.addEventListener("click", function () {
-      showEditPopup(newRow);
+      showEditPopup(newRow, deleteButton);
     });
 
     deleteButton.addEventListener("click", function () {
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Function to show edit popup
-  function showEditPopup(row) {
+  function showEditPopup(row, deleteButton) {
     const cells = row.querySelectorAll("td");
     const itemName = cells[0].textContent;
     const description = cells[1].textContent;
@@ -96,6 +96,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const discount = cells[5].textContent.replace("%", "");
     const bestSeller = cells[7].textContent;
     const stockAvailable = cells[8].textContent;
+
+    // Disable the delete button while editing
+    deleteButton.disabled = true;
 
     // Create a popup for editing
     const popup = document.createElement("div");
@@ -196,13 +199,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Remove the popup
       document.body.removeChild(popup);
+
+      // Re-enable the delete button
+      deleteButton.disabled = false;
     });
 
     // Handle cancel edit
     document
       .getElementById("cancel-edit")
       .addEventListener("click", function () {
+        // Remove the popup
         document.body.removeChild(popup);
+
+        // Re-enable the delete button
+        deleteButton.disabled = false;
       });
   }
 
