@@ -9,23 +9,24 @@ document.addEventListener("DOMContentLoaded", function () {
     event.preventDefault(); // Prevent the form from submitting
 
     // Get form values
-    const itemName = document.querySelector('input[type="text"]').value;
-    const description = document.querySelector("textarea").value;
-    const price = document.querySelector(
-      'input[type="number"][step="0.01"]'
-    ).value;
+    const itemName = document.querySelector('input[type="text"]').value.trim();
+    const description = document.querySelector("textarea").value.trim();
+    const price = document
+      .querySelector('input[type="number"][step="0.01"]')
+      .value.trim();
     const category = document.querySelector("select").value;
     const subcategory = document.querySelectorAll("select")[1].value;
     const discount =
-      document.querySelector('input[type="number"][min="0"][max="100"]')
-        .value || 0; // Default to 0 if empty
+      document
+        .querySelector('input[type="number"][min="0"][max="100"]')
+        .value.trim() || 0; // Default to 0 if empty
     const imageFile = document.querySelector('input[type="file"]').files[0];
     const bestSeller = document.querySelector(
       'input[name="best_seller"]:checked'
-    ).value;
-    const stockAvailable = document.querySelector(
-      'input[type="number"][min="0"]'
-    ).value;
+    )?.value;
+    const stockAvailable = document
+      .querySelector('input[type="number"][min="0"]')
+      .value.trim();
 
     // Validate required fields
     if (
@@ -77,16 +78,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteButton = newRow.querySelector(".delete-btn");
 
     editButton.addEventListener("click", function () {
-      showEditPopup(newRow, deleteButton);
+      // Disable the delete button while editing
+      deleteButton.disabled = true;
+      // Disable the edit button while editing
+      editButton.disabled = true;
+      showEditPopup(newRow, deleteButton, editButton);
     });
 
     deleteButton.addEventListener("click", function () {
-      showDeleteConfirmation(newRow);
+      // Disable the edit button while deleting
+      editButton.disabled = true;
+      showDeleteConfirmation(newRow, editButton);
     });
   });
 
   // Function to show edit popup
-  function showEditPopup(row, deleteButton) {
+  function showEditPopup(row, deleteButton, editButton) {
     const cells = row.querySelectorAll("td");
     const itemName = cells[0].textContent;
     const description = cells[1].textContent;
@@ -96,9 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const discount = cells[5].textContent.replace("%", "");
     const bestSeller = cells[7].textContent;
     const stockAvailable = cells[8].textContent;
-
-    // Disable the delete button while editing
-    deleteButton.disabled = true;
 
     // Create a popup for editing
     const popup = document.createElement("div");
@@ -202,6 +206,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Re-enable the delete button
       deleteButton.disabled = false;
+      // Re-enable the edit button after saving
+      editButton.disabled = false;
     });
 
     // Handle cancel edit
@@ -213,11 +219,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Re-enable the delete button
         deleteButton.disabled = false;
+        // Re-enable the edit button after canceling
+        editButton.disabled = false;
       });
   }
 
   // Function to show delete confirmation popup
-  function showDeleteConfirmation(row) {
+  function showDeleteConfirmation(row, editButton) {
     const popup = document.createElement("div");
     popup.style.position = "fixed";
     popup.style.top = "50%";
@@ -246,6 +254,9 @@ document.addEventListener("DOMContentLoaded", function () {
       .addEventListener("click", function () {
         row.remove(); // Remove the row
         document.body.removeChild(popup); // Remove the popup
+
+        // Re-enable the edit button
+        editButton.disabled = false;
       });
 
     // Handle cancel delete
@@ -253,6 +264,9 @@ document.addEventListener("DOMContentLoaded", function () {
       .getElementById("cancel-delete")
       .addEventListener("click", function () {
         document.body.removeChild(popup); // Remove the popup
+
+        // Re-enable the edit button
+        editButton.disabled = false;
       });
   }
 });
